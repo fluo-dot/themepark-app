@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Resort</title>
+
+<script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="appwrite.js"></script>
+
+<style>
+:root{
+  --bg:#f5f7fb;
+  --card:#ffffff;
+  --text:#0f172a;
+  --muted:#64748b;
+  --primary:#2563eb;
+  --border:#e6eaf0;
+}
+
+/* GLOBAL */
+body{
+  margin:0;
+  font-family:Arial;
+  background:var(--bg);
+  overflow:hidden;
+}
+
+/* MAIN */
+.main{
+  height:100vh;
+  overflow-y:auto;
+  padding:30px 40px;
+  box-sizing:border-box;
+}
+
+/* TOP BAR */
+.topbar{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:25px;
+}
+
+/* BACK BUTTON */
+.back-btn{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  border:none;
+  background:white;
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  border:1px solid var(--border);
+  transition:0.2s;
+}
+
+.back-btn:hover{
+  background:#f1f5f9;
+}
+
+/* TITLE */
+h2{
+  margin:0;
+  font-size:22px;
+}
+
+.qr-section{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  background:white;
+  padding:15px;
+  border-radius:16px;
+  border:1px solid var(--border);
+  margin-bottom:20px;
+}
+
+.qr-box{
+  width:90px;
+  height:90px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px dashed #cbd5e1;
+  border-radius:12px;
+  color:#94a3b8;
+  font-weight:bold;
+}
+
+.qr-info{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.link-box{
+  padding:10px;
+  background:#f1f5f9;
+  border-radius:10px;
+  font-size:13px;
+  color:#334155;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.qr-buttons{
+  display:flex;
+  gap:10px;
+}
+
+.btn.small{
+  padding:10px;
+  font-size:13px;
+  border-radius:10px;
+}
+
+.btn.secondary{
+  background:#e5e7eb;
+  color:black;
+}
+
+/* EMPTY */
+.empty{
+  color:var(--muted);
+  margin-top:20px;
+}
+
+/* PARK CARD */
+.park-card{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:12px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.park-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 30px rgba(0,0,0,0.08);
+}
+
+/* FLOAT BUTTON */
+.fab{
+  position:fixed;
+  right:30px;
+  bottom:30px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:var(--primary);
+  color:white;
+  border:none;
+  font-size:28px;
+  cursor:pointer;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* MODAL */
+.modal{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.4);
+  justify-content:center;
+  align-items:center;
+}
+
+.modal-content{
+  background:white;
+  padding:20px;
+  border-radius:16px;
+  width:320px;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:10px;
+  border:1px solid var(--border);
+}
+
+.btn{
+  background:var(--primary);
+  color:white;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  margin-top:10px;
+  width:100%;
+}
+
+.btn.secondary{
+  background:#e5e7eb;
+  color:black;
+}
+</style>
+</head>
+
+<body>
+
+<div class="main">
+
+  <!-- TOP -->
+  <div class="topbar">
+    <button class="back-btn" onclick="goDashboard()">
+      <i data-lucide="arrow-left"></i> Zurück
+    </button>
+    <h2 id="resortTitle">Resort</h2>
+  </div>
+
+  <div class="qr-section">
+
+  <div class="qr-box">
+    <div class="qr-placeholder">
+      QR
+    </div>
+  </div>
+
+  <div class="qr-info">
+    <div class="link-box">
+      https://your-resort-link.com
+    </div>
+
+    <div class="qr-buttons">
+      <button class="btn small">QR Code Download</button>
+      <button class="btn small secondary">PDF Download</button>
+    </div>
+  </div>
+
+</div>
+
+  <!-- PARKS -->
+  <div id="parks"></div>
+
+</div>
+
+<!-- FLOAT BUTTON -->
+<button class="fab" onclick="openModal()">+</button>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h3>Park erstellen</h3>
+    <input id="parkName" placeholder="Park Name">
+    <button class="btn" onclick="createPark()">Erstellen</button>
+    <button class="btn secondary" onclick="closeModal()">Abbrechen</button>
+  </div>
+</div>
+
+<script>
+
+let resortId;
+let userId;
+
+/* INIT */
+async function init(){
+
+  const url = new URLSearchParams(window.location.search);
+  resortId = url.get("id");
+
+  try {
+    const user = await account.get();
+    userId = user.$id;
+  } catch(e){
+    console.error(e);
+  }
+
+  await loadResort();
+  await loadParks();
+
+  lucide.createIcons();
+}
+
+init();
+
+/* RESORT NAME */
+async function loadResort(){
+  const res = await databases.getDocument(
+    DATABASE_ID,
+    RESORTS_ID,
+    resortId
+  );
+
+  document.getElementById("resortTitle").innerText = res.name;
+}
+
+/* LOAD PARKS */
+async function loadParks(){
+
+  const res = await databases.listDocuments(
+    DATABASE_ID,
+    "parks",
+    [
+      Appwrite.Query.equal("resortId", resortId) // 🔥 DAS IST DIE VERBINDUNG
+    ]
+  );
+
+  let html = "";
+
+  if(res.documents.length === 0){
+    html = `<p class="empty">Keine Parks vorhanden</p>`;
+  }
+
+  res.documents.forEach(p => {
+    html += `
+      <div class="park-card" onclick="openPark('${p.$id}')">
+        <h3>${p.name}</h3>
+        <p style="color:#64748b;">Klick zum Öffnen</p>
+      </div>
+    `;
+  });
+
+  document.getElementById("parks").innerHTML = html;
+}
+
+function openPark(id){
+  window.location.href = "park.html?id=" + id + "&resort=" + resortId;
+}
+  
+/* CREATE PARK */
+async function createPark(){
+
+  const name = document.getElementById("parkName").value;
+  if(!name) return;
+
+  try {
+
+    await databases.createDocument(
+      DATABASE_ID,
+      "parks",
+      Appwrite.ID.unique(),
+      {
+        name: name,
+        resortId: resortId,
+        ownerId: userId,
+        status: "closed" // ✅ FIX HIER
+      }
+    );
+
+    closeModal();
+    loadParks();
+
+  } catch(err){
+    console.error(err);
+    alert("Fehler beim Erstellen");
+  }
+}
+
+/* NAV */
+function goDashboard(){
+  window.location.href = "dashboard.html";
+}
+
+/* MODAL */
+function openModal(){
+  document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal(){
+  document.getElementById("modal").style.display = "none";
+}
+
+</script>
+
+</body>
+</html>

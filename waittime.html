@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Waittime Panel</title>
+
+<style>
+body { font-family:Arial; background:#f9fafb; margin:0; }
+header { padding:20px; background:white; border-bottom:1px solid #ddd; }
+.card { background:white; margin:10px; padding:15px; border-radius:10px; }
+button { padding:8px; background:#2563eb; color:white; border:none; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
+<script src="appwrite.js"></script>
+
+</head>
+
+<body>
+
+<header>
+  <h2>Waittime Dashboard</h2>
+</header>
+
+<div id="parks"></div>
+
+<script>
+
+let userId = null;
+
+async function init(){
+
+  const user = await account.get();
+  userId = user.$id;
+
+  const memberships = await databases.listDocuments(
+    DATABASE_ID,
+    "park_members",
+    [
+      Appwrite.Query.equal("userId", userId),
+      Appwrite.Query.equal("status", "accepted")
+    ]
+  );
+
+  document.getElementById("parks").innerHTML =
+    memberships.documents.map(m => `
+      <div class="card">
+        <h3>Park ID: ${m.parkId}</h3>
+        <button>Wartezeit ändern (später)</button>
+      </div>
+    `).join("");
+}
+
+init();
+
+</script>
+
+</body>
+</html>

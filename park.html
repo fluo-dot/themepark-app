@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Park</title>
+
+<script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="appwrite.js"></script>
+
+<style>
+:root{
+  --bg:#f5f7fb;
+  --sidebar:#0f172a;
+  --sidebar2:#111c33;
+  --card:#ffffff;
+  --text:#0f172a;
+  --muted:#64748b;
+  --primary:#2563eb;
+  --border:#e6eaf0;
+}
+
+body{
+  margin:0;
+  font-family:Arial;
+  background:var(--bg);
+  overflow:hidden;
+}
+
+/* SIDEBAR */
+.sidebar{
+  position:fixed;
+  left:0;
+  top:0;
+  width:230px;
+  height:100vh;
+  background:linear-gradient(180deg,var(--sidebar),var(--sidebar2));
+  color:white;
+  padding:18px;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+}
+
+.sidebar h2{
+  font-size:16px;
+  margin-bottom:20px;
+}
+
+.nav button{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  padding:12px;
+  border:none;
+  background:transparent;
+  color:#cbd5e1;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.nav button:hover{
+  background:rgba(255,255,255,0.08);
+  color:white;
+}
+
+.nav button.active{
+  background:rgba(37,99,235,0.25);
+  color:white;
+}
+
+/* MAIN */
+.main{
+  margin-left:230px;
+  height:100vh;
+  overflow-y:auto;
+  padding:30px 40px;
+  box-sizing:border-box;
+}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+
+.content{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px;
+}
+
+/* MONTH */
+.month{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+.month button{
+  padding:6px 10px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:white;
+  cursor:pointer;
+}
+
+/* CALENDAR */
+.calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:10px;
+}
+
+.weekday{
+  font-size:12px;
+  color:#64748b;
+  text-align:center;
+}
+
+/* DAY */
+.day{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:10px;
+  min-height:80px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.day:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 20px rgba(0,0,0,0.05);
+}
+
+/* SLOT BOX */
+.slotBox{
+  margin-bottom:15px;
+  padding:15px;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:12px;
+}
+
+/* MODAL */
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.4);
+  justify-content:center;
+  align-items:center;
+}
+
+.modal-content{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  width:320px;
+}
+
+select, input{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:8px;
+  border:1px solid var(--border);
+}
+
+.btn{
+  width:100%;
+  margin-top:10px;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.primary{background:#2563eb;color:white;}
+.secondary{background:#e5e7eb;}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>Park Manager</h2>
+
+  <div class="nav">
+    <button class="active"><i data-lucide="clock"></i> Öffnungszeiten</button>
+    <button><i data-lucide="hourglass"></i> Wartezeiten</button>
+    <button><i data-lucide="map-pin"></i> Attraktionen</button>
+    <button><i data-lucide="plus-circle"></i> Hinzufügen</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <div class="header">
+    <h2>Öffnungszeiten</h2>
+  </div>
+
+  <!-- SLOT CREATOR -->
+  <div class="slotBox">
+
+    <h3>Öffnungszeiten erstellen</h3>
+
+    <div style="display:flex;gap:10px;">
+      <input id="fromTime" type="time">
+      <input id="toTime" type="time">
+    </div>
+
+    <button class="btn primary" onclick="addTimeSlot()">Hinzufügen</button>
+
+    <div id="slotList" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="content">
+
+    <div class="month">
+      <button onclick="prev()">←</button>
+      <h3 id="monthLabel"></h3>
+      <button onclick="next()">→</button>
+    </div>
+
+    <div id="calendar"></div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h3>Tag bearbeiten</h3>
+
+    <select id="daySelect"></select>
+
+    <button class="btn primary" onclick="saveDay()">Speichern</button>
+    <button class="btn secondary" onclick="closeModal()">Abbrechen</button>
+  </div>
+</div>
+
+<script>
+
+let parkId;
+let selectedDay = null;
+let days = {};
+let timeSlots = [];
+let date = new Date();
+
+const DB_ID = "themepark-dp";
+const HOURS = "openinghours";
+const SLOTS = "timeslots";
+
+/* INIT */
+async function init(){
+  lucide.createIcons();
+
+  const params = new URLSearchParams(location.search);
+  parkId = params.get("id");
+
+  await loadSlots();
+  await loadDays();
+
+  render();
+}
+
+init();
+
+/* LOAD SLOTS */
+async function loadSlots(){
+
+  try {
+    const res = await databases.listDocuments(
+      DB_ID,
+      SLOTS,
+      [Appwrite.Query.equal("parkId", parkId)]
+    );
+
+    timeSlots = res.documents.map(d => d.label);
+
+  } catch(err){
+    console.error(err);
+  }
+}
+
+/* ADD SLOT */
+async function addTimeSlot(){
+
+  const from = document.getElementById("fromTime").value;
+  const to = document.getElementById("toTime").value;
+
+  if(!from || !to) return;
+
+  const label = `${from} - ${to}`;
+
+  try {
+
+    await databases.createDocument(
+      DB_ID,
+      SLOTS,
+      Appwrite.ID.unique(),
+      {
+        parkId,
+        from,
+        to,
+        label
+      }
+    );
+
+    timeSlots.push(label);
+
+  } catch(err){
+    console.error(err);
+  }
+}
+
+/* LOAD DAYS */
+async function loadDays(){
+
+  try {
+
+    const res = await databases.listDocuments(
+      DB_ID,
+      HOURS,
+      [Appwrite.Query.equal("parkId", parkId)]
+    );
+
+    days = {};
+
+    res.documents.forEach(d=>{
+      days[d.date] = d;
+    });
+
+  } catch(err){
+    console.error(err);
+  }
+}
+
+/* RENDER CALENDAR */
+function render(){
+
+  const y = date.getFullYear();
+  const m = date.getMonth();
+
+  document.getElementById("monthLabel").innerText =
+    date.toLocaleString("de-DE",{month:"long",year:"numeric"});
+
+  const first = new Date(y,m,1);
+  const last = new Date(y,m+1,0);
+
+  const start = (first.getDay()+6)%7;
+
+  let html = `<div class="calendar">`;
+
+  const daysW = ["Mo","Di","Mi","Do","Fr","Sa","So"];
+  daysW.forEach(d=> html += `<div class="weekday">${d}</div>`);
+
+  for(let i=0;i<start;i++) html += `<div></div>`;
+
+  for(let i=1;i<=last.getDate();i++){
+
+    const key = `${y}-${m+1}-${i}`;
+    const d = days[key];
+
+    let icon="➖";
+    let text="Keine Angabe";
+    let color="#94a3b8";
+
+    if(d?.type==="open"){
+      icon="🟢";
+      text=d.time;
+      color="#16a34a";
+    }
+
+    if(d?.type==="closed"){
+      icon="🔴";
+      text="Geschlossen";
+      color="#dc2626";
+    }
+
+    html += `
+      <div class="day" onclick="openDay('${key}')">
+        <strong>${i}</strong>
+        <div style="color:${color};font-size:11px;margin-top:6px;">
+          ${icon} ${text}
+        </div>
+      </div>
+    `;
+  }
+
+  html += `</div>`;
+  document.getElementById("calendar").innerHTML = html;
+}
+
+/* MONTH */
+function prev(){ date.setMonth(date.getMonth()-1); render(); }
+function next(){ date.setMonth(date.getMonth()+1); render(); }
+
+/* MODAL */
+function openDay(key){
+
+  selectedDay = key;
+
+  let options = `
+    <option value="none">Keine Angabe</option>
+    <option value="closed">Geschlossen</option>
+  `;
+
+  timeSlots.forEach(t=>{
+    options += `<option value="${t}">${t}</option>`;
+  });
+
+  document.getElementById("daySelect").innerHTML = options;
+
+  document.getElementById("modal").style.display="flex";
+}
+
+function closeModal(){
+  document.getElementById("modal").style.display="none";
+}
+
+/* SAVE */
+async function saveDay(){
+
+  const val = document.getElementById("daySelect").value;
+
+  let type="none";
+  let time="";
+
+  if(val==="closed") type="closed";
+  else if(val!=="none"){
+    type="open";
+    time=val;
+  }
+
+  try {
+
+    const existing = await databases.listDocuments(
+      DB_ID,
+      HOURS,
+      [
+        Appwrite.Query.equal("parkId", parkId),
+        Appwrite.Query.equal("date", selectedDay)
+      ]
+    );
+
+    if(existing.documents.length>0){
+
+      await databases.updateDocument(
+        DB_ID,
+        HOURS,
+        existing.documents[0].$id,
+        {type,time}
+      );
+
+    } else {
+
+      await databases.createDocument(
+        DB_ID,
+        HOURS,
+        Appwrite.ID.unique(),
+        {
+          parkId,
+          date:selectedDay,
+          type,
+          time
+        }
+      );
+    }
+
+    days[selectedDay]={type,time};
+
+    closeModal();
+    render();
+
+  } catch(err){
+    console.error(err);
+  }
+}
+
+</script>
+
+</body>
+</html>

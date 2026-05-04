@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+
+<style>
+:root{
+  --bg:#f6f7fb;
+  --card:#fff;
+  --text:#0f172a;
+  --primary:#2563eb;
+  --border:#e5e7eb;
+}
+
+body{
+  margin:0;
+  font-family:Arial;
+  display:flex;
+  background:var(--bg);
+  color:var(--text);
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:260px;
+  height:100vh;
+  background:white;
+  border-right:1px solid var(--border);
+  padding:20px;
+}
+
+.sidebar h2{
+  margin-bottom:20px;
+}
+
+.sidebar button{
+  width:100%;
+  padding:12px;
+  border:none;
+  background:none;
+  text-align:left;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.sidebar button:hover{
+  background:#f1f5f9;
+}
+
+/* MAIN */
+.main{
+  flex:1;
+  padding:30px;
+}
+
+/* UI */
+.card{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+  margin-top:10px;
+}
+
+.btn{
+  background:var(--primary);
+  color:white;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:15px;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:10px;
+  border:1px solid var(--border);
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
+<script src="appwrite.js"></script>
+
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>Dashboard</h2>
+
+  <button onclick="showTab('home')">🏠 Home</button>
+  <button onclick="showTab('invite')">📩 Einladen</button>
+  <button onclick="showTab('help')">❓ Help Center</button>
+  <button onclick="showTab('settings')">⚙️ Einstellungen</button>
+  <button onclick="logout()">🚪 Abmelden</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<h2 id="title">Home</h2>
+<div id="content"></div>
+
+</div>
+
+<script>
+
+let userId = null;
+
+/* INIT */
+async function init(){
+  try {
+    const user = await account.get();
+    userId = user.$id;
+    showTab("home");
+  } catch (e) {
+    window.location.href = "auth.html";
+  }
+}
+
+init();
+
+/* TAB ROUTER */
+function showTab(tab){
+  if(tab === "home") renderHome();
+  if(tab === "invite") renderInvite();
+  if(tab === "help") renderHelp();
+  if(tab === "settings") renderSettings();
+}
+
+/* ================= HOME ================= */
+async function renderHome(){
+
+  document.getElementById("title").innerText = "Home";
+
+  const res = await databases.listDocuments(
+    DATABASE_ID,
+    RESORTS_ID,
+    [Appwrite.Query.equal("ownerId", userId)]
+  );
+
+  let html = `
+    <div class="card">
+      <h3>➕ Resort erstellen</h3>
+
+      <input id="resortName" placeholder="Resort Name">
+
+      <button class="btn" style="margin-top:10px;" onclick="createResort()">
+        Erstellen
+      </button>
+    </div>
+
+    <div class="grid">
+  `;
+
+  if(res.documents.length === 0){
+    html += `<p style="margin-top:20px;">Noch keine Resorts vorhanden</p>`;
+  }
+
+  res.documents.forEach(r => {
+    html += `
+      <div class="card">
+        <h3>${r.name}</h3>
+        <button onclick="openResort('${r.$id}')">Öffnen</button>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+
+  document.getElementById("content").innerHTML = html;
+}
+
+/* CREATE RESORT */
+async function createResort(){
+
+  const name = document.getElementById("resortName").value;
+  if(!name) return alert("Name fehlt");
+
+  await databases.createDocument(
+    DATABASE_ID,
+    RESORTS_ID,
+    Appwrite.ID.unique(),
+    {
+      name,
+      ownerId: userId
+    }
+  );
+
+  renderHome();
+}
+
+/* OPEN RESORT */
+function openResort(id){
+  window.location.href = "resort.html?id=" + id;
+}
+
+/* ================= PLACEHOLDERS ================= */
+function renderInvite(){
+  document.getElementById("title").innerText = "Einladen";
+  document.getElementById("content").innerHTML =
+    `<div class="card">Kommt später 🚧</div>`;
+}
+
+function renderHelp(){
+  document.getElementById("title").innerText = "Help Center";
+  document.getElementById("content").innerHTML =
+    `<div class="card">Kommt später 🚧</div>`;
+}
+
+function renderSettings(){
+  document.getElementById("title").innerText = "Einstellungen";
+  document.getElementById("content").innerHTML =
+    `<div class="card">Kommt später 🚧</div>`;
+}
+
+/* LOGOUT */
+async function logout(){
+  await account.deleteSession("current");
+  window.location.href = "auth.html";
+}
+
+</script>
+
+</body>
+</html>
