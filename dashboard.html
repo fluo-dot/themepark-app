@@ -4,48 +4,86 @@
 <meta charset="UTF-8">
 <title>Dashboard</title>
 
+<script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="appwrite.js"></script>
+
 <style>
 :root{
-  --bg:#f6f7fb;
-  --card:#fff;
+  --bg:#f5f7fb;
+  --sidebar:#0f172a;
+  --sidebar2:#111c33;
+  --card:#ffffff;
   --text:#0f172a;
+  --muted:#94a3b8;
   --primary:#2563eb;
-  --border:#e5e7eb;
+  --border:#e6eaf0;
 }
 
+/* GLOBAL */
 body{
   margin:0;
   font-family:Arial;
   display:flex;
   background:var(--bg);
-  color:var(--text);
 }
 
 /* SIDEBAR */
 .sidebar{
-  width:260px;
+  width:240px;
   height:100vh;
-  background:white;
-  border-right:1px solid var(--border);
-  padding:20px;
+  background:linear-gradient(180deg,var(--sidebar),var(--sidebar2));
+  color:white;
+  padding:18px;
+  display:flex;
+  flex-direction:column;
 }
 
 .sidebar h2{
+  font-size:16px;
   margin-bottom:20px;
+  color:white;
 }
 
-.sidebar button{
-  width:100%;
-  padding:12px;
+/* NAV */
+.nav, .bottom{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.nav button,
+.bottom button{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
   border:none;
-  background:none;
-  text-align:left;
+  background:transparent;
+  color:#cbd5e1;
   border-radius:10px;
   cursor:pointer;
+  font-size:14px;
+  transition:0.2s;
 }
 
-.sidebar button:hover{
-  background:#f1f5f9;
+.nav button:hover,
+.bottom button:hover{
+  background:rgba(255,255,255,0.08);
+  color:white;
+}
+
+/* ACTIVE TAB */
+.nav button.active{
+  background:rgba(37,99,235,0.25);
+  color:white;
+}
+
+/* BOTTOM */
+.bottom{
+  margin-top:auto;
+  padding-top:10px;
+  border-top:1px solid rgba(255,255,255,0.1);
 }
 
 /* MAIN */
@@ -54,13 +92,69 @@ body{
   padding:30px;
 }
 
-/* UI */
-.card{
+/* TITLE */
+h2{
+  margin-bottom:20px;
+}
+
+/* RESORT CARD */
+.resort-card{
   background:white;
   border:1px solid var(--border);
   border-radius:16px;
-  padding:16px;
+  padding:20px;
+  margin-bottom:12px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.resort-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 30px rgba(0,0,0,0.08);
+}
+
+/* FAB */
+.fab{
+  position:fixed;
+  right:30px;
+  bottom:30px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:var(--primary);
+  color:white;
+  border:none;
+  font-size:28px;
+  cursor:pointer;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* MODAL */
+.modal{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.4);
+  justify-content:center;
+  align-items:center;
+}
+
+.modal-content{
+  background:white;
+  padding:20px;
+  border-radius:16px;
+  width:320px;
+}
+
+input{
+  width:100%;
+  padding:12px;
   margin-top:10px;
+  border-radius:10px;
+  border:1px solid var(--border);
 }
 
 .btn{
@@ -70,25 +164,10 @@ body{
   border:none;
   border-radius:12px;
   cursor:pointer;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
-  gap:15px;
-}
-
-input{
-  width:100%;
-  padding:10px;
   margin-top:10px;
-  border-radius:10px;
-  border:1px solid var(--border);
+  width:100%;
 }
 </style>
-
-<script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
-<script src="appwrite.js"></script>
 
 </head>
 
@@ -96,21 +175,48 @@ input{
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-  <h2>Dashboard</h2>
 
-  <button onclick="showTab('home')">🏠 Home</button>
-  <button onclick="showTab('invite')">📩 Einladen</button>
-  <button onclick="showTab('help')">❓ Help Center</button>
-  <button onclick="showTab('settings')">⚙️ Einstellungen</button>
-  <button onclick="logout()">🚪 Abmelden</button>
+  <h2>ThemePark</h2>
+
+  <div class="nav">
+    <button id="tab-home" class="active" onclick="showTab('home')">
+      <i data-lucide="home"></i> Home
+    </button>
+  </div>
+
+  <div class="bottom">
+    <button onclick="alert('coming soon')">
+      <i data-lucide="help-circle"></i> Help Center
+    </button>
+
+    <button onclick="alert('coming soon')">
+      <i data-lucide="settings"></i> Einstellungen
+    </button>
+
+    <button onclick="logout()">
+      <i data-lucide="log-out"></i> Logout
+    </button>
+  </div>
+
 </div>
 
 <!-- MAIN -->
 <div class="main">
+  <h2>Home</h2>
+  <div id="content"></div>
+</div>
 
-<h2 id="title">Home</h2>
-<div id="content"></div>
+<!-- FAB -->
+<button class="fab" onclick="openModal()">+</button>
 
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h3>Resort erstellen</h3>
+    <input id="resortName" placeholder="Name">
+    <button class="btn" onclick="createResort()">Erstellen</button>
+    <button class="btn" style="background:#e5e7eb;color:black" onclick="closeModal()">Abbrechen</button>
+  </div>
 </div>
 
 <script>
@@ -119,29 +225,31 @@ let userId = null;
 
 /* INIT */
 async function init(){
-  try {
-    const user = await account.get();
-    userId = user.$id;
-    showTab("home");
-  } catch (e) {
-    window.location.href = "auth.html";
-  }
+  const user = await account.get();
+  userId = user.$id;
+
+  showHome();
+  lucide.createIcons();
 }
 
 init();
 
-/* TAB ROUTER */
-function showTab(tab){
-  if(tab === "home") renderHome();
-  if(tab === "invite") renderInvite();
-  if(tab === "help") renderHelp();
-  if(tab === "settings") renderSettings();
+/* TAB UI */
+function setActive(tab){
+  document.querySelectorAll(".nav button")
+    .forEach(b => b.classList.remove("active"));
+
+  const el = document.getElementById("tab-" + tab);
+  if(el) el.classList.add("active");
 }
 
-/* ================= HOME ================= */
-async function renderHome(){
+function showTab(tab){
+  setActive(tab);
+  showHome();
+}
 
-  document.getElementById("title").innerText = "Home";
+/* HOME */
+async function showHome(){
 
   const res = await databases.listDocuments(
     DATABASE_ID,
@@ -149,43 +257,29 @@ async function renderHome(){
     [Appwrite.Query.equal("ownerId", userId)]
   );
 
-  let html = `
-    <div class="card">
-      <h3>➕ Resort erstellen</h3>
-
-      <input id="resortName" placeholder="Resort Name">
-
-      <button class="btn" style="margin-top:10px;" onclick="createResort()">
-        Erstellen
-      </button>
-    </div>
-
-    <div class="grid">
-  `;
+  let html = "";
 
   if(res.documents.length === 0){
-    html += `<p style="margin-top:20px;">Noch keine Resorts vorhanden</p>`;
+    html += `<p style="color:#64748b;">Noch keine Resorts vorhanden</p>`;
   }
 
   res.documents.forEach(r => {
     html += `
-      <div class="card">
+      <div class="resort-card" onclick="openResort('${r.$id}')">
         <h3>${r.name}</h3>
-        <button onclick="openResort('${r.$id}')">Öffnen</button>
+        <p style="color:#64748b;">Klicken zum Öffnen</p>
       </div>
     `;
   });
 
-  html += `</div>`;
-
   document.getElementById("content").innerHTML = html;
 }
 
-/* CREATE RESORT */
+/* CREATE */
 async function createResort(){
 
   const name = document.getElementById("resortName").value;
-  if(!name) return alert("Name fehlt");
+  if(!name) return;
 
   await databases.createDocument(
     DATABASE_ID,
@@ -197,31 +291,22 @@ async function createResort(){
     }
   );
 
-  renderHome();
+  closeModal();
+  showHome();
 }
 
-/* OPEN RESORT */
+/* OPEN */
 function openResort(id){
   window.location.href = "resort.html?id=" + id;
 }
 
-/* ================= PLACEHOLDERS ================= */
-function renderInvite(){
-  document.getElementById("title").innerText = "Einladen";
-  document.getElementById("content").innerHTML =
-    `<div class="card">Kommt später 🚧</div>`;
+/* MODAL */
+function openModal(){
+  document.getElementById("modal").style.display = "flex";
 }
 
-function renderHelp(){
-  document.getElementById("title").innerText = "Help Center";
-  document.getElementById("content").innerHTML =
-    `<div class="card">Kommt später 🚧</div>`;
-}
-
-function renderSettings(){
-  document.getElementById("title").innerText = "Einstellungen";
-  document.getElementById("content").innerHTML =
-    `<div class="card">Kommt später 🚧</div>`;
+function closeModal(){
+  document.getElementById("modal").style.display = "none";
 }
 
 /* LOGOUT */
