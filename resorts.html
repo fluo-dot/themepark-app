@@ -12,11 +12,13 @@
 <style>
 :root {
   --bg: #f5f7fb;
+  --sidebar: #0f172a;
+  --sidebar2: #111c33;
   --card: #ffffff;
   --text: #0f172a;
   --muted: #64748b;
-  --primary: #667eea;
-  --border: #e2e8f0;
+  --primary: #2563eb;
+  --border: #e5e7eb;
 }
 
 * {
@@ -26,23 +28,104 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: Arial, sans-serif;
   background: var(--bg);
   min-height: 100vh;
+  display: flex;
 }
 
+/* SIDEBAR */
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background: linear-gradient(180deg, var(--sidebar), var(--sidebar2));
+  color: white;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  overflow-y: auto;
+}
+
+.sidebar h2 {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.nav button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  color: #cbd5e1;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.nav button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.nav button.active {
+  background: rgba(37, 99, 235, 0.25);
+  color: white;
+}
+
+.bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bottom button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  color: #cbd5e1;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.bottom button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+/* MAIN */
 .main {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 40px 20px;
+  margin-left: 240px;
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+  max-height: 100vh;
 }
 
 /* HEADER */
 .header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 40px;
+  gap: 12px;
+  margin-bottom: 30px;
 }
 
 .back-btn {
@@ -51,22 +134,22 @@ body {
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   background: white;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: 0.2s;
   color: var(--text);
 }
 
 .back-btn:hover {
-  background: var(--border);
+  background: #f1f5f9;
 }
 
 h1 {
-  font-size: 28px;
+  font-size: 24px;
   color: var(--text);
-  flex: 1;
+  margin: 0;
 }
 
 /* PARKS GRID */
@@ -80,33 +163,32 @@ h1 {
 .park-card {
   background: white;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 24px;
+  border-radius: 12px;
+  padding: 20px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: 0.2s;
 }
 
 .park-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
 
 .park-card h3 {
-  font-size: 18px;
+  font-size: 16px;
   margin-bottom: 8px;
   color: var(--text);
 }
 
 .park-card p {
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .empty {
   background: white;
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 60px 40px;
   text-align: center;
 }
@@ -124,17 +206,16 @@ h1 {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), #764ba2);
+  background: var(--primary);
   color: white;
   border: none;
   font-size: 28px;
   cursor: pointer;
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-  transition: all 0.3s;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  transition: 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
 }
 
 .fab:hover {
@@ -154,15 +235,15 @@ h1 {
 
 .modal-content {
   background: white;
-  padding: 32px;
-  border-radius: 16px;
+  padding: 30px;
+  border-radius: 12px;
   width: 100%;
-  max-width: 400px;
+  max-width: 380px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 .modal-content h3 {
-  font-size: 20px;
+  font-size: 18px;
   margin-bottom: 20px;
   color: var(--text);
 }
@@ -175,23 +256,23 @@ h1 {
   display: block;
   margin-bottom: 6px;
   color: var(--text);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
 }
 
 .form-group input {
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 14px;
-  transition: all 0.2s;
+  transition: 0.2s;
 }
 
 .form-group input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
 .modal-buttons {
@@ -202,23 +283,22 @@ h1 {
 
 .btn {
   flex: 1;
-  padding: 12px;
+  padding: 10px;
   border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: 0.2s;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), #764ba2);
+  background: var(--primary);
   color: white;
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+  background: #1d4ed8;
 }
 
 .btn-secondary {
@@ -227,7 +307,25 @@ h1 {
 }
 
 .btn-secondary:hover {
-  background: #cbd5e1;
+  background: #d1d5db;
+}
+
+/* TAB CONTENT */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.more-content {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  color: var(--muted);
 }
 </style>
 
@@ -235,23 +333,53 @@ h1 {
 
 <body>
 
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>ThemePark</h2>
+
+  <div class="nav">
+    <button class="active" onclick="switchTab('parks')">
+      <i data-lucide="map-pin"></i> Parks
+    </button>
+    <button onclick="switchTab('more')">
+      <i data-lucide="more-horizontal"></i> Mehr
+    </button>
+  </div>
+
+  <div class="bottom">
+    <button onclick="logout()">
+      <i data-lucide="log-out"></i> Logout
+    </button>
+  </div>
+</div>
+
+<!-- MAIN -->
 <div class="main">
 
   <!-- HEADER -->
   <div class="header">
-    <button class="back-btn" onclick="goBack()" title="Zurück">
+    <button class="back-btn" onclick="goBack()" title="Zurück zum Dashboard">
       <i data-lucide="arrow-left"></i>
     </button>
     <h1 id="resortTitle">Resort</h1>
   </div>
 
-  <!-- PARKS -->
-  <div id="content"></div>
+  <!-- PARKS TAB -->
+  <div id="parks" class="tab-content active">
+    <div id="parksContent"></div>
+  </div>
+
+  <!-- MORE TAB -->
+  <div id="more" class="tab-content">
+    <div class="more-content">
+      <p>🚧 Weitere Optionen folgen in Kürze...</p>
+    </div>
+  </div>
 
 </div>
 
 <!-- FAB -->
-<button class="fab" onclick="openModal()" title="Neuen Park erstellen">+</button>
+<button class="fab" id="fab" onclick="openModal()" title="Neuen Park erstellen">+</button>
 
 <!-- MODAL -->
 <div class="modal" id="modal">
@@ -330,7 +458,7 @@ async function loadParks() {
       html = `
         <div class="empty">
           <p>🎡 Keine Parks in diesem Resort</p>
-          <p style="font-size: 13px; color: #94a3b8;">Klicke auf das + Symbol um einen neuen Park zu erstellen</p>
+          <p style="font-size: 12px; color: #94a3b8;">Klicke auf das + Symbol um einen neuen Park zu erstellen</p>
         </div>
       `;
     } else {
@@ -346,7 +474,7 @@ async function loadParks() {
       html += '</div>';
     }
 
-    document.getElementById("content").innerHTML = html;
+    document.getElementById("parksContent").innerHTML = html;
   } catch(err) {
     console.error("Error loading parks:", err);
   }
@@ -386,6 +514,33 @@ function openPark(parkId) {
   window.location.href = `park.html?id=${parkId}&resort=${resortId}`;
 }
 
+/* TAB SWITCHING */
+function switchTab(tab) {
+  // Hide all tabs
+  document.querySelectorAll(".tab-content").forEach(el => {
+    el.classList.remove("active");
+  });
+
+  // Remove active from all buttons
+  document.querySelectorAll(".nav button").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  // Show selected tab
+  document.getElementById(tab).classList.add("active");
+
+  // Add active to clicked button
+  event.target.closest("button").classList.add("active");
+
+  // Hide FAB for "Mehr" tab
+  const fab = document.getElementById("fab");
+  if(tab === "more") {
+    fab.style.display = "none";
+  } else {
+    fab.style.display = "flex";
+  }
+}
+
 /* MODAL */
 function openModal() {
   document.getElementById("modal").style.display = "flex";
@@ -398,6 +553,16 @@ function closeModal() {
 /* NAVIGATION */
 function goBack() {
   window.location.href = "dashboard.html";
+}
+
+/* LOGOUT */
+async function logout() {
+  try {
+    await account.deleteSession("current");
+    window.location.href = "auth.html";
+  } catch(err) {
+    console.error("Logout error:", err);
+  }
 }
 
 </script>
