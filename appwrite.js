@@ -5,7 +5,12 @@ const client = new Appwrite.Client()
 const account = new Appwrite.Account(client);
 const databases = new Appwrite.Databases(client);
 
-const DATABASE_ID = "themepark-dp";     // MUSS exakt stimmen
+// Database & Collections
+const DATABASE_ID = "themepark-dp";
 const PROFILES_ID = "profiles";
 const RESORTS_ID = "resots";
 const PARKS_ID = "parks";
+const ATTRACTIONS_ID = "attractions";
+const OPENINGHOURS_ID = "openinghours";
+const TIMESLOTS_ID = "timeslots";
+const PARK_MEMBERS_ID = "park_members";
