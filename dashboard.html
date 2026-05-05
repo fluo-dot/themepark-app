@@ -2,170 +2,312 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Park Manager Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="appwrite.js"></script>
 
 <style>
-:root{
-  --bg:#f5f7fb;
-  --sidebar:#0f172a;
-  --sidebar2:#111c33;
-  --card:#ffffff;
-  --text:#0f172a;
-  --muted:#94a3b8;
-  --primary:#2563eb;
-  --border:#e6eaf0;
+:root {
+  --bg: #f5f7fb;
+  --sidebar: #0f172a;
+  --sidebar2: #111c33;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --primary: #667eea;
+  --border: #e2e8f0;
 }
 
-/* GLOBAL */
-body{
-  margin:0;
-  font-family:Arial;
-  display:flex;
-  background:var(--bg);
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  display: flex;
+  background: var(--bg);
+  min-height: 100vh;
 }
 
 /* SIDEBAR */
-.sidebar{
-  width:240px;
-  height:100vh;
-  background:linear-gradient(180deg,var(--sidebar),var(--sidebar2));
-  color:white;
-  padding:18px;
-  display:flex;
-  flex-direction:column;
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background: linear-gradient(180deg, var(--sidebar), var(--sidebar2));
+  color: white;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  overflow-y: auto;
 }
 
-.sidebar h2{
-  font-size:16px;
-  margin-bottom:20px;
-  color:white;
+.sidebar h2 {
+  font-size: 18px;
+  margin-bottom: 30px;
+  font-weight: 700;
 }
 
-/* NAV */
-.nav, .bottom{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
 }
 
-.nav button,
-.bottom button{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:10px;
-  border:none;
-  background:transparent;
-  color:#cbd5e1;
-  border-radius:10px;
-  cursor:pointer;
-  font-size:14px;
-  transition:0.2s;
+.nav button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  background: transparent;
+  color: #cbd5e1;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  font-weight: 500;
 }
 
-.nav button:hover,
-.bottom button:hover{
-  background:rgba(255,255,255,0.08);
-  color:white;
+.nav button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
-/* ACTIVE TAB */
-.nav button.active{
-  background:rgba(37,99,235,0.25);
-  color:white;
+.nav button.active {
+  background: rgba(102, 126, 234, 0.25);
+  color: white;
 }
 
-/* BOTTOM */
-.bottom{
-  margin-top:auto;
-  padding-top:10px;
-  border-top:1px solid rgba(255,255,255,0.1);
+.bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bottom button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  background: transparent;
+  color: #cbd5e1;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.bottom button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
 /* MAIN */
-.main{
-  flex:1;
-  padding:30px;
+.main {
+  margin-left: 260px;
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+  max-height: 100vh;
 }
 
-/* TITLE */
-h2{
-  margin-bottom:20px;
+h1 {
+  font-size: 28px;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.subtitle {
+  color: var(--muted);
+  margin-bottom: 30px;
+  font-size: 14px;
 }
 
 /* RESORT CARD */
-.resort-card{
-  background:white;
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:20px;
-  margin-bottom:12px;
-  cursor:pointer;
-  transition:0.2s;
+.resorts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
 }
 
-.resort-card:hover{
-  transform:translateY(-2px);
-  box-shadow:0 12px 30px rgba(0,0,0,0.08);
+.resort-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.resort-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary);
+}
+
+.resort-card h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.resort-card p {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.empty {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.empty p {
+  color: var(--muted);
+  margin-bottom: 20px;
 }
 
 /* FAB */
-.fab{
-  position:fixed;
-  right:30px;
-  bottom:30px;
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  background:var(--primary);
-  color:white;
-  border:none;
-  font-size:28px;
-  cursor:pointer;
-  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+.fab {
+  position: fixed;
+  right: 40px;
+  bottom: 40px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), #764ba2);
+  color: white;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fab:hover {
+  transform: scale(1.1);
 }
 
 /* MODAL */
-.modal{
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.4);
-  justify-content:center;
-  align-items:center;
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-.modal-content{
-  background:white;
-  padding:20px;
-  border-radius:16px;
-  width:320px;
+.modal-content {
+  background: white;
+  padding: 32px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
-input{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border-radius:10px;
-  border:1px solid var(--border);
+.modal-content h3 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: var(--text);
 }
 
-.btn{
-  background:var(--primary);
-  color:white;
-  padding:12px;
-  border:none;
-  border-radius:12px;
-  cursor:pointer;
-  margin-top:10px;
-  width:100%;
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), #764ba2);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+}
+
+.btn-secondary {
+  background: var(--border);
+  color: var(--text);
+}
+
+.btn-secondary:hover {
+  background: #cbd5e1;
+}
+
+.loading {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 </style>
 
@@ -175,144 +317,164 @@ input{
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-
-  <h2>ThemePark</h2>
+  <h2>🎢 ThemePark</h2>
 
   <div class="nav">
-    <button id="tab-home" class="active" onclick="showTab('home')">
-      <i data-lucide="home"></i> Home
+    <button class="active" onclick="loadResorts()">
+      <i data-lucide="home"></i> Meine Resorts
     </button>
   </div>
 
   <div class="bottom">
-    <button onclick="alert('coming soon')">
-      <i data-lucide="help-circle"></i> Help Center
-    </button>
-
-    <button onclick="alert('coming soon')">
+    <button onclick="showSettings()">
       <i data-lucide="settings"></i> Einstellungen
     </button>
-
     <button onclick="logout()">
       <i data-lucide="log-out"></i> Logout
     </button>
   </div>
-
 </div>
 
 <!-- MAIN -->
 <div class="main">
-  <h2>Home</h2>
+  <h1>Meine Resorts</h1>
+  <p class="subtitle">Verwalte deine Freizeitpark-Resorts</p>
+
   <div id="content"></div>
 </div>
 
 <!-- FAB -->
-<button class="fab" onclick="openModal()">+</button>
+<button class="fab" onclick="openModal()" title="Neues Resort erstellen">+</button>
 
 <!-- MODAL -->
 <div class="modal" id="modal">
   <div class="modal-content">
-    <h3>Resort erstellen</h3>
-    <input id="resortName" placeholder="Name">
-    <button class="btn" onclick="createResort()">Erstellen</button>
-    <button class="btn" style="background:#e5e7eb;color:black" onclick="closeModal()">Abbrechen</button>
+    <h3>Neues Resort erstellen</h3>
+
+    <div class="form-group">
+      <label>Resort Name</label>
+      <input id="resortName" placeholder="z.B. Fantasyland Park" type="text">
+    </div>
+
+    <div class="modal-buttons">
+      <button class="btn btn-primary" onclick="createResort()">Erstellen</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Abbrechen</button>
+    </div>
   </div>
 </div>
 
 <script>
 
-let userId = null;
+let currentUser = null;
+let currentUserId = null;
 
 /* INIT */
-async function init(){
-  const user = await account.get();
-  userId = user.$id;
-
-  showHome();
-  lucide.createIcons();
+async function init() {
+  try {
+    currentUser = await account.get();
+    currentUserId = currentUser.$id;
+    loadResorts();
+    lucide.createIcons();
+  } catch(err) {
+    window.location.href = "auth.html";
+  }
 }
 
 init();
 
-/* TAB UI */
-function setActive(tab){
-  document.querySelectorAll(".nav button")
-    .forEach(b => b.classList.remove("active"));
+/* LOAD RESORTS */
+async function loadResorts() {
+  try {
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      RESORTS_ID,
+      [Appwrite.Query.equal("ownerId", currentUserId)]
+    );
 
-  const el = document.getElementById("tab-" + tab);
-  if(el) el.classList.add("active");
+    const resorts = response.documents;
+    let html = "";
+
+    if(resorts.length === 0) {
+      html = `
+        <div class="empty">
+          <p>📍 Du hast noch keine Resorts erstellt</p>
+          <p style="font-size: 13px; color: #94a3b8;">Klicke auf das + Symbol um ein neues Resort zu erstellen</p>
+        </div>
+      `;
+    } else {
+      html = '<div class="resorts-grid">';
+      resorts.forEach(resort => {
+        html += `
+          <div class="resort-card" onclick="openResort('${resort.$id}')">
+            <h3>${resort.name}</h3>
+            <p>Klick zum Verwalten</p>
+          </div>
+        `;
+      });
+      html += '</div>';
+    }
+
+    document.getElementById("content").innerHTML = html;
+  } catch(err) {
+    console.error("Error loading resorts:", err);
+    document.getElementById("content").innerHTML = `<div class="empty"><p>Fehler beim Laden der Resorts</p></div>`;
+  }
 }
 
-function showTab(tab){
-  setActive(tab);
-  showHome();
-}
+/* CREATE RESORT */
+async function createResort() {
+  const name = document.getElementById("resortName").value.trim();
 
-/* HOME */
-async function showHome(){
-
-  const res = await databases.listDocuments(
-    DATABASE_ID,
-    RESORTS_ID,
-    [Appwrite.Query.equal("ownerId", userId)]
-  );
-
-  let html = "";
-
-  if(res.documents.length === 0){
-    html += `<p style="color:#64748b;">Noch keine Resorts vorhanden</p>`;
+  if(!name) {
+    alert("Bitte gib einen Namen ein");
+    return;
   }
 
-  res.documents.forEach(r => {
-    html += `
-      <div class="resort-card" onclick="openResort('${r.$id}')">
-        <h3>${r.name}</h3>
-        <p style="color:#64748b;">Klicken zum Öffnen</p>
-      </div>
-    `;
-  });
+  try {
+    await databases.createDocument(
+      DATABASE_ID,
+      RESORTS_ID,
+      Appwrite.ID.unique(),
+      {
+        name: name,
+        ownerId: currentUserId
+      }
+    );
 
-  document.getElementById("content").innerHTML = html;
+    closeModal();
+    document.getElementById("resortName").value = "";
+    loadResorts();
+  } catch(err) {
+    alert("Fehler beim Erstellen des Resorts: " + err.message);
+  }
 }
 
-/* CREATE */
-async function createResort(){
-
-  const name = document.getElementById("resortName").value;
-  if(!name) return;
-
-  await databases.createDocument(
-    DATABASE_ID,
-    RESORTS_ID,
-    Appwrite.ID.unique(),
-    {
-      name,
-      ownerId: userId
-    }
-  );
-
-  closeModal();
-  showHome();
-}
-
-/* OPEN */
-function openResort(id){
-  window.location.href = "resort.html?id=" + id;
+/* OPEN RESORT */
+function openResort(resortId) {
+  window.location.href = `resorts.html?id=${resortId}`;
 }
 
 /* MODAL */
-function openModal(){
+function openModal() {
   document.getElementById("modal").style.display = "flex";
 }
 
-function closeModal(){
+function closeModal() {
   document.getElementById("modal").style.display = "none";
 }
 
+function showSettings() {
+  alert("Einstellungen werden in Kürze verfügbar");
+}
+
 /* LOGOUT */
-async function logout(){
-  await account.deleteSession("current");
-  window.location.href = "auth.html";
+async function logout() {
+  try {
+    await account.deleteSession("current");
+    window.location.href = "auth.html";
+  } catch(err) {
+    console.error("Logout error:", err);
+  }
 }
 
 </script>
