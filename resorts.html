@@ -2,373 +2,402 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Resort</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resort Management</title>
 
 <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="appwrite.js"></script>
 
 <style>
-:root{
-  --bg:#f5f7fb;
-  --card:#ffffff;
-  --text:#0f172a;
-  --muted:#64748b;
-  --primary:#2563eb;
-  --border:#e6eaf0;
+:root {
+  --bg: #f5f7fb;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --primary: #667eea;
+  --border: #e2e8f0;
 }
 
-/* GLOBAL */
-body{
-  margin:0;
-  font-family:Arial;
-  background:var(--bg);
-  overflow:hidden;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* MAIN */
-.main{
-  height:100vh;
-  overflow-y:auto;
-  padding:30px 40px;
-  box-sizing:border-box;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
 }
 
-/* TOP BAR */
-.topbar{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin-bottom:25px;
+.main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
 }
 
-/* BACK BUTTON */
-.back-btn{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  border:none;
-  background:white;
-  padding:8px 12px;
-  border-radius:10px;
-  cursor:pointer;
-  border:1px solid var(--border);
-  transition:0.2s;
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 40px;
 }
 
-.back-btn:hover{
-  background:#f1f5f9;
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text);
 }
 
-/* TITLE */
-h2{
-  margin:0;
-  font-size:22px;
+.back-btn:hover {
+  background: var(--border);
 }
 
-.qr-section{
-  display:flex;
-  align-items:center;
-  gap:20px;
-  background:white;
-  padding:15px;
-  border-radius:16px;
-  border:1px solid var(--border);
-  margin-bottom:20px;
+h1 {
+  font-size: 28px;
+  color: var(--text);
+  flex: 1;
 }
 
-.qr-box{
-  width:90px;
-  height:90px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border:1px dashed #cbd5e1;
-  border-radius:12px;
-  color:#94a3b8;
-  font-weight:bold;
+/* PARKS GRID */
+.parks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
 }
 
-.qr-info{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
+.park-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
-.link-box{
-  padding:10px;
-  background:#f1f5f9;
-  border-radius:10px;
-  font-size:13px;
-  color:#334155;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
+.park-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary);
 }
 
-.qr-buttons{
-  display:flex;
-  gap:10px;
+.park-card h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: var(--text);
 }
 
-.btn.small{
-  padding:10px;
-  font-size:13px;
-  border-radius:10px;
+.park-card p {
+  color: var(--muted);
+  font-size: 14px;
 }
 
-.btn.secondary{
-  background:#e5e7eb;
-  color:black;
+.empty {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 60px 40px;
+  text-align: center;
 }
 
-/* EMPTY */
-.empty{
-  color:var(--muted);
-  margin-top:20px;
+.empty p {
+  color: var(--muted);
+  margin-bottom: 20px;
 }
 
-/* PARK CARD */
-.park-card{
-  background:white;
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:20px;
-  margin-bottom:12px;
-  cursor:pointer;
-  transition:0.2s;
+/* FAB */
+.fab {
+  position: fixed;
+  right: 40px;
+  bottom: 40px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), #764ba2);
+  color: white;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
 }
 
-.park-card:hover{
-  transform:translateY(-2px);
-  box-shadow:0 12px 30px rgba(0,0,0,0.08);
-}
-
-/* FLOAT BUTTON */
-.fab{
-  position:fixed;
-  right:30px;
-  bottom:30px;
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  background:var(--primary);
-  color:white;
-  border:none;
-  font-size:28px;
-  cursor:pointer;
-  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+.fab:hover {
+  transform: scale(1.1);
 }
 
 /* MODAL */
-.modal{
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.4);
-  justify-content:center;
-  align-items:center;
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-.modal-content{
-  background:white;
-  padding:20px;
-  border-radius:16px;
-  width:320px;
+.modal-content {
+  background: white;
+  padding: 32px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
-input{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border-radius:10px;
-  border:1px solid var(--border);
+.modal-content h3 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: var(--text);
 }
 
-.btn{
-  background:var(--primary);
-  color:white;
-  padding:12px;
-  border:none;
-  border-radius:12px;
-  cursor:pointer;
-  margin-top:10px;
-  width:100%;
+.form-group {
+  margin-bottom: 16px;
 }
 
-.btn.secondary{
-  background:#e5e7eb;
-  color:black;
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), #764ba2);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+}
+
+.btn-secondary {
+  background: var(--border);
+  color: var(--text);
+}
+
+.btn-secondary:hover {
+  background: #cbd5e1;
 }
 </style>
+
 </head>
 
 <body>
 
 <div class="main">
 
-  <!-- TOP -->
-  <div class="topbar">
-    <button class="back-btn" onclick="goDashboard()">
-      <i data-lucide="arrow-left"></i> Zurück
+  <!-- HEADER -->
+  <div class="header">
+    <button class="back-btn" onclick="goBack()" title="Zurück">
+      <i data-lucide="arrow-left"></i>
     </button>
-    <h2 id="resortTitle">Resort</h2>
+    <h1 id="resortTitle">Resort</h1>
   </div>
-
-  <div class="qr-section">
-
-  <div class="qr-box">
-    <div class="qr-placeholder">
-      QR
-    </div>
-  </div>
-
-  <div class="qr-info">
-    <div class="link-box">
-      https://your-resort-link.com
-    </div>
-
-    <div class="qr-buttons">
-      <button class="btn small">QR Code Download</button>
-      <button class="btn small secondary">PDF Download</button>
-    </div>
-  </div>
-
-</div>
 
   <!-- PARKS -->
-  <div id="parks"></div>
+  <div id="content"></div>
 
 </div>
 
-<!-- FLOAT BUTTON -->
-<button class="fab" onclick="openModal()">+</button>
+<!-- FAB -->
+<button class="fab" onclick="openModal()" title="Neuen Park erstellen">+</button>
 
 <!-- MODAL -->
 <div class="modal" id="modal">
   <div class="modal-content">
-    <h3>Park erstellen</h3>
-    <input id="parkName" placeholder="Park Name">
-    <button class="btn" onclick="createPark()">Erstellen</button>
-    <button class="btn secondary" onclick="closeModal()">Abbrechen</button>
+    <h3>Neuen Park erstellen</h3>
+
+    <div class="form-group">
+      <label>Park Name</label>
+      <input id="parkName" placeholder="z.B. Dragon Coaster Park" type="text">
+    </div>
+
+    <div class="modal-buttons">
+      <button class="btn btn-primary" onclick="createPark()">Erstellen</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Abbrechen</button>
+    </div>
   </div>
 </div>
 
 <script>
 
-let resortId;
-let userId;
+let resortId = null;
+let currentUserId = null;
 
 /* INIT */
-async function init(){
-
-  const url = new URLSearchParams(window.location.search);
-  resortId = url.get("id");
-
+async function init() {
   try {
     const user = await account.get();
-    userId = user.$id;
-  } catch(e){
-    console.error(e);
+    currentUserId = user.$id;
+
+    const params = new URLSearchParams(location.search);
+    resortId = params.get("id");
+
+    if(!resortId) {
+      window.location.href = "dashboard.html";
+      return;
+    }
+
+    await loadResort();
+    await loadParks();
+    lucide.createIcons();
+  } catch(err) {
+    window.location.href = "auth.html";
   }
-
-  await loadResort();
-  await loadParks();
-
-  lucide.createIcons();
 }
 
 init();
 
-/* RESORT NAME */
-async function loadResort(){
-  const res = await databases.getDocument(
-    DATABASE_ID,
-    RESORTS_ID,
-    resortId
-  );
+/* LOAD RESORT NAME */
+async function loadResort() {
+  try {
+    const resort = await databases.getDocument(
+      DATABASE_ID,
+      RESORTS_ID,
+      resortId
+    );
 
-  document.getElementById("resortTitle").innerText = res.name;
+    document.getElementById("resortTitle").textContent = resort.name;
+  } catch(err) {
+    console.error("Error loading resort:", err);
+  }
 }
 
 /* LOAD PARKS */
-async function loadParks(){
+async function loadParks() {
+  try {
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      PARKS_ID,
+      [Appwrite.Query.equal("resortId", resortId)]
+    );
 
-  const res = await databases.listDocuments(
-    DATABASE_ID,
-    "parks",
-    [
-      Appwrite.Query.equal("resortId", resortId) // 🔥 DAS IST DIE VERBINDUNG
-    ]
-  );
+    const parks = response.documents;
+    let html = "";
 
-  let html = "";
+    if(parks.length === 0) {
+      html = `
+        <div class="empty">
+          <p>🎡 Keine Parks in diesem Resort</p>
+          <p style="font-size: 13px; color: #94a3b8;">Klicke auf das + Symbol um einen neuen Park zu erstellen</p>
+        </div>
+      `;
+    } else {
+      html = '<div class="parks-grid">';
+      parks.forEach(park => {
+        html += `
+          <div class="park-card" onclick="openPark('${park.$id}')">
+            <h3>${park.name}</h3>
+            <p>Klick zum Verwalten</p>
+          </div>
+        `;
+      });
+      html += '</div>';
+    }
 
-  if(res.documents.length === 0){
-    html = `<p class="empty">Keine Parks vorhanden</p>`;
+    document.getElementById("content").innerHTML = html;
+  } catch(err) {
+    console.error("Error loading parks:", err);
+  }
+}
+
+/* CREATE PARK */
+async function createPark() {
+  const name = document.getElementById("parkName").value.trim();
+
+  if(!name) {
+    alert("Bitte gib einen Park-Namen ein");
+    return;
   }
 
-  res.documents.forEach(p => {
-    html += `
-      <div class="park-card" onclick="openPark('${p.$id}')">
-        <h3>${p.name}</h3>
-        <p style="color:#64748b;">Klick zum Öffnen</p>
-      </div>
-    `;
-  });
-
-  document.getElementById("parks").innerHTML = html;
-}
-
-function openPark(id){
-  window.location.href = "park.html?id=" + id + "&resort=" + resortId;
-}
-  
-/* CREATE PARK */
-async function createPark(){
-
-  const name = document.getElementById("parkName").value;
-  if(!name) return;
-
   try {
-
     await databases.createDocument(
       DATABASE_ID,
-      "parks",
+      PARKS_ID,
       Appwrite.ID.unique(),
       {
         name: name,
         resortId: resortId,
-        ownerId: userId,
-        status: "closed" // ✅ FIX HIER
+        ownerId: currentUserId
       }
     );
 
     closeModal();
+    document.getElementById("parkName").value = "";
     loadParks();
-
-  } catch(err){
-    console.error(err);
-    alert("Fehler beim Erstellen");
+  } catch(err) {
+    alert("Fehler beim Erstellen des Parks: " + err.message);
   }
 }
 
-/* NAV */
-function goDashboard(){
-  window.location.href = "dashboard.html";
+/* OPEN PARK */
+function openPark(parkId) {
+  window.location.href = `park.html?id=${parkId}&resort=${resortId}`;
 }
 
 /* MODAL */
-function openModal(){
+function openModal() {
   document.getElementById("modal").style.display = "flex";
 }
 
-function closeModal(){
+function closeModal() {
   document.getElementById("modal").style.display = "none";
+}
+
+/* NAVIGATION */
+function goBack() {
+  window.location.href = "dashboard.html";
 }
 
 </script>
