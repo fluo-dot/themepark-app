@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wartezeiten</title>
+
+<script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="appwrite.js"></script>
+
+<style>
+:root {
+  --bg: #f5f7fb;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --primary: #667eea;
+  --border: #e2e8f0;
+  --green: #16a34a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+.main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text);
+}
+
+.back-btn:hover {
+  background: var(--border);
+}
+
+h1 {
+  font-size: 28px;
+  color: var(--text);
+  flex: 1;
+}
+
+/* ATTRACTIONS GRID */
+.attractions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.attraction-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s;
+}
+
+.attraction-card:hover {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.attraction-card h3 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.waittime-input-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.waittime-input-group input {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--primary);
+  transition: all 0.2s;
+}
+
+.waittime-input-group input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.waittime-label {
+  font-size: 14px;
+  color: var(--muted);
+  text-align: center;
+  min-width: 45px;
+}
+
+.btn {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), #764ba2);
+  color: white;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.empty {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.empty p {
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.status-badge {
+  display: inline-block;
+  background: #dbeafe;
+  color: #0369a1;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+.status-badge.open {
+  background: #dcfce7;
+  color: var(--green);
+}
+
+.status-badge.closed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="main">
+
+  <!-- HEADER -->
+  <div class="header">
+    <button class="back-btn" onclick="goBack()" title="Zurück">
+      <i data-lucide="arrow-left"></i>
+    </button>
+    <h1 id="parkTitle">Park</h1>
+  </div>
+
+  <!-- ATTRACTIONS -->
+  <div id="content"></div>
+
+</div>
+
+<script>
+
+let parkId = null;
+let currentUserId = null;
+let attractions = [];
+
+/* INIT */
+async function init() {
+  try {
+    const user = await account.get();
+    currentUserId = user.$id;
+
+    const params = new URLSearchParams(location.search);
+    parkId = params.get("id");
+
+    if(!parkId) {
+      window.location.href = "waittime-dashboard.html";
+      return;
+    }
+
+    await loadPark();
+    await loadAttractions();
+    lucide.createIcons();
+  } catch(err) {
+    window.location.href = "auth.html";
+  }
+}
+
+init();
+
+/* LOAD PARK */
+async function loadPark() {
+  try {
+    const park = await databases.getDocument(
+      DATABASE_ID,
+      PARKS_ID,
+      parkId
+    );
+
+    document.getElementById("parkTitle").textContent = park.name;
+  } catch(err) {
+    console.error("Error loading park:", err);
+  }
+}
+
+/* LOAD ATTRACTIONS */
+async function loadAttractions() {
+  try {
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      ATTRACTIONS_ID,
+      [Appwrite.Query.equal("parkId", parkId)]
+    );
+
+    attractions = response.documents;
+    renderAttractions();
+  } catch(err) {
+    console.error("Error loading attractions:", err);
+  }
+}
+
+/* RENDER ATTRACTIONS */
+function renderAttractions() {
+  const container = document.getElementById("content");
+
+  if(attractions.length === 0) {
+    container.innerHTML = `
+      <div class="empty">
+        <p>🎢 Keine Attraktionen in diesem Park</p>
+        <p style="font-size: 13px; color: #94a3b8;">Der Park Manager muss erst Attraktionen hinzufügen</p>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '<div class="attractions-grid">';
+
+  attractions.forEach(attr => {
+    const statusClass = attr.status === "open" ? "open" : "closed";
+    const statusText = attr.status === "open" ? "Offen" : "Geschlossen";
+
+    html += `
+      <div class="attraction-card">
+        <h3>${attr.name}</h3>
+
+        <div class="waittime-input-group">
+          <input
+            type="number"
+            id="waittime_${attr.$id}"
+            value="${attr.waitTime}"
+            min="0"
+            placeholder="Minuten"
+          >
+          <span class="waittime-label">min</span>
+        </div>
+
+        <button class="btn btn-primary" onclick="updateWaitTime('${attr.$id}')">
+          Speichern
+        </button>
+
+        <div class="status-badge ${statusClass}">
+          ${statusText}
+        </div>
+      </div>
+    `;
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+/* UPDATE WAIT TIME */
+async function updateWaitTime(id) {
+  const input = document.getElementById(`waittime_${id}`);
+  const newTime = parseInt(input.value) || 0;
+
+  try {
+    await databases.updateDocument(
+      DATABASE_ID,
+      ATTRACTIONS_ID,
+      id,
+      { waitTime: newTime }
+    );
+
+    // Visual feedback
+    input.style.borderColor = 'var(--green)';
+    setTimeout(() => {
+      input.style.borderColor = 'var(--border)';
+    }, 1000);
+
+    loadAttractions();
+  } catch(err) {
+    alert("Fehler beim Aktualisieren: " + err.message);
+  }
+}
+
+/* NAVIGATION */
+function goBack() {
+  window.location.href = "waittime-dashboard.html";
+}
+
+</script>
+
+</body>
+</html>
