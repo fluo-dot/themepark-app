@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Waittime Manager Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="appwrite.js"></script>
+
+<style>
+:root {
+  --bg: #f5f7fb;
+  --sidebar: #0f172a;
+  --sidebar2: #111c33;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --primary: #667eea;
+  --border: #e2e8f0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  display: flex;
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background: linear-gradient(180deg, var(--sidebar), var(--sidebar2));
+  color: white;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  overflow-y: auto;
+}
+
+.sidebar h2 {
+  font-size: 18px;
+  margin-bottom: 30px;
+  font-weight: 700;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.nav button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  background: transparent;
+  color: #cbd5e1;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.nav button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.nav button.active {
+  background: rgba(102, 126, 234, 0.25);
+  color: white;
+}
+
+.bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bottom button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  background: transparent;
+  color: #cbd5e1;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.bottom button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* MAIN */
+.main {
+  margin-left: 260px;
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
+h1 {
+  font-size: 28px;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.subtitle {
+  color: var(--muted);
+  margin-bottom: 30px;
+  font-size: 14px;
+}
+
+/* PARK CARD */
+.parks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.park-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.park-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary);
+}
+
+.park-card h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.park-card p {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.empty {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.empty p {
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+/* BADGE */
+.badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--primary), #764ba2);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 12px;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>⏱️ ThemePark</h2>
+
+  <div class="nav">
+    <button class="active" onclick="loadParks()">
+      <i data-lucide="hourglass"></i> Meine Parks
+    </button>
+  </div>
+
+  <div class="bottom">
+    <button onclick="showSettings()">
+      <i data-lucide="settings"></i> Einstellungen
+    </button>
+    <button onclick="logout()">
+      <i data-lucide="log-out"></i> Logout
+    </button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <h1>Wartezeiten verwalten</h1>
+  <p class="subtitle">Verwalte Wartezeiten für deine zugewiesenen Parks</p>
+
+  <div id="content"></div>
+</div>
+
+<script>
+
+let currentUser = null;
+let currentUserId = null;
+
+/* INIT */
+async function init() {
+  try {
+    currentUser = await account.get();
+    currentUserId = currentUser.$id;
+    loadParks();
+    lucide.createIcons();
+  } catch(err) {
+    window.location.href = "auth.html";
+  }
+}
+
+init();
+
+/* LOAD PARKS */
+async function loadParks() {
+  try {
+    // Get all park_members assigned to this user
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      PARK_MEMBERS_ID,
+      [
+        Appwrite.Query.equal("userId", currentUserId),
+        Appwrite.Query.equal("status", "accepted")
+      ]
+    );
+
+    const assignments = response.documents;
+    let html = "";
+
+    if(assignments.length === 0) {
+      html = `
+        <div class="empty">
+          <p>🎡 Dir sind noch keine Parks zugewiesen</p>
+          <p style="font-size: 13px; color: #94a3b8;">Warte bis ein Park Manager dir Parks zuweist</p>
+        </div>
+      `;
+    } else {
+      html = '<div class="parks-grid">';
+
+      for(const assignment of assignments) {
+        try {
+          // Get park details
+          const park = await databases.getDocument(
+            DATABASE_ID,
+            PARKS_ID,
+            assignment.parkId
+          );
+
+          html += `
+            <div class="park-card" onclick="openPark('${park.$id}')">
+              <h3>${park.name}</h3>
+              <p>Klick um Wartezeiten zu verwalten</p>
+              <div class="badge">${assignment.roleInPark}</div>
+            </div>
+          `;
+        } catch(err) {
+          console.error("Error loading park:", err);
+        }
+      }
+
+      html += '</div>';
+    }
+
+    document.getElementById("content").innerHTML = html;
+  } catch(err) {
+    console.error("Error loading parks:", err);
+    document.getElementById("content").innerHTML = `<div class="empty"><p>Fehler beim Laden der Parks</p></div>`;
+  }
+}
+
+/* OPEN PARK */
+function openPark(parkId) {
+  window.location.href = `waittime-park.html?id=${parkId}`;
+}
+
+function showSettings() {
+  alert("Einstellungen werden in Kürze verfügbar");
+}
+
+/* LOGOUT */
+async function logout() {
+  try {
+    await account.deleteSession("current");
+    window.location.href = "auth.html";
+  } catch(err) {
+    console.error("Logout error:", err);
+  }
+}
+
+</script>
+
+</body>
+</html>
