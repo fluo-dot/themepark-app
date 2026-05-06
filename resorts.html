@@ -47,10 +47,41 @@ body {
   overflow-y: auto;
 }
 
-.sidebar h2 {
-  font-size: 16px;
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.back-btn-sidebar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
   color: white;
+  transition: 0.2s;
+  flex-shrink: 0;
+}
+
+.back-btn-sidebar:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.resort-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .nav {
@@ -126,24 +157,6 @@ body {
   align-items: center;
   gap: 12px;
   margin-bottom: 30px;
-}
-
-.back-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: white;
-  cursor: pointer;
-  transition: 0.2s;
-  color: var(--text);
-}
-
-.back-btn:hover {
-  background: #f1f5f9;
 }
 
 h1 {
@@ -335,7 +348,12 @@ h1 {
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-  <h2>ThemePark</h2>
+  <div class="sidebar-header">
+    <button class="back-btn-sidebar" onclick="goBack()" title="Zurück zum Dashboard">
+      <i data-lucide="arrow-left"></i>
+    </button>
+    <span class="resort-name" id="resortNameSidebar">Resort</span>
+  </div>
 
   <div class="nav">
     <button class="active" onclick="switchTab('parks')">
@@ -358,9 +376,6 @@ h1 {
 
   <!-- HEADER -->
   <div class="header">
-    <button class="back-btn" onclick="goBack()" title="Zurück zum Dashboard">
-      <i data-lucide="arrow-left"></i>
-    </button>
     <h1 id="resortTitle">Resort</h1>
   </div>
 
@@ -437,6 +452,7 @@ async function loadResort() {
     );
 
     document.getElementById("resortTitle").textContent = resort.name;
+    document.getElementById("resortNameSidebar").textContent = resort.name;
   } catch(err) {
     console.error("Error loading resort:", err);
   }
