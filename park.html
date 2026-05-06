@@ -42,47 +42,9 @@ body{
   flex-direction:column;
 }
 
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.back-btn-sidebar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  color: white;
-  transition: 0.2s;
-}
-
-.back-btn-sidebar:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.park-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: white;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.nav{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  flex:1;
+.sidebar h2{
+  font-size:16px;
+  margin-bottom:20px;
 }
 
 .nav button{
@@ -96,8 +58,6 @@ body{
   color:#cbd5e1;
   border-radius:10px;
   cursor:pointer;
-  font-size: 14px;
-  transition:0.2s;
 }
 
 .nav button:hover{
@@ -131,15 +91,6 @@ body{
   border:1px solid var(--border);
   border-radius:16px;
   padding:20px;
-}
-
-/* TAB CONTENT */
-.tab-content {
-  display: none;
-}
-
-.tab-content.active {
-  display: block;
 }
 
 /* MONTH */
@@ -232,47 +183,6 @@ select, input{
 
 .primary{background:#2563eb;color:white;}
 .secondary{background:#e5e7eb;}
-
-.waittime-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 15px;
-}
-
-.waittime-card {
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-}
-
-.waittime-card h3 {
-  margin: 0 0 10px 0;
-  color: var(--text);
-  font-size: 16px;
-}
-
-.waittime-input {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.waittime-input input {
-  flex: 1;
-  padding: 8px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-.waittime-input button {
-  padding: 8px 16px;
-  background: var(--primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
 </style>
 </head>
 
@@ -280,76 +190,59 @@ select, input{
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-  <div class="sidebar-header">
-    <button class="back-btn-sidebar" onclick="goBack()" title="Zurück">
-      <i data-lucide="arrow-left"></i>
-    </button>
-    <span class="park-name" id="parkNameSidebar">Park</span>
-  </div>
+  <h2>Park Manager</h2>
 
   <div class="nav">
-    <button class="active" onclick="switchTab('opening-hours')"><i data-lucide="clock"></i> Öffnungszeiten</button>
-    <button onclick="switchTab('attractions')"><i data-lucide="map-pin"></i> Attraktionen</button>
-    <button onclick="switchTab('waittime')"><i data-lucide="hourglass"></i> Wartezeiten</button>
+    <button class="active"><i data-lucide="clock"></i> Öffnungszeiten</button>
+    <button><i data-lucide="hourglass"></i> Wartezeiten</button>
+    <button><i data-lucide="map-pin"></i> Attraktionen</button>
+    <button><i data-lucide="plus-circle"></i> Hinzufügen</button>
   </div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
-  <!-- OPENING HOURS TAB -->
-  <div id="opening-hours" class="tab-content active">
-    <div class="header">
-      <h2>Öffnungszeiten</h2>
-    </div>
-
-    <!-- SLOT CREATOR -->
-    <div class="slotBox">
-      <h3>Öffnungszeiten erstellen</h3>
-      <div style="display:flex;gap:10px;">
-        <input id="fromTime" type="time">
-        <input id="toTime" type="time">
-      </div>
-      <button class="btn primary" onclick="addTimeSlot()">Hinzufügen</button>
-      <div id="slotList" style="margin-top:10px;"></div>
-    </div>
-
-    <!-- CALENDAR -->
-    <div class="content">
-      <div class="month">
-        <button onclick="prev()">←</button>
-        <h3 id="monthLabel"></h3>
-        <button onclick="next()">→</button>
-      </div>
-      <div id="calendar"></div>
-    </div>
+  <div class="header">
+    <h2>Öffnungszeiten</h2>
   </div>
 
-  <!-- ATTRACTIONS TAB -->
-  <div id="attractions" class="tab-content">
-    <div class="header">
-      <h2>Attraktionen</h2>
+  <!-- SLOT CREATOR -->
+  <div class="slotBox">
+
+    <h3>Öffnungszeiten erstellen</h3>
+
+    <div style="display:flex;gap:10px;">
+      <input id="fromTime" type="time">
+      <input id="toTime" type="time">
     </div>
-    <div class="content">
-      <p style="color: var(--muted); text-align: center; padding: 40px;">🎢 Attraktionsverwaltung folgt in Kürze...</p>
-    </div>
+
+    <button class="btn primary" onclick="addTimeSlot()">Hinzufügen</button>
+
+    <div id="slotList" style="margin-top:10px;"></div>
   </div>
 
-  <!-- WAITTIME TAB -->
-  <div id="waittime" class="tab-content">
-    <div class="header">
-      <h2>Wartezeiten</h2>
-    </div>
-    <div id="waittimeContent" class="waittime-container"></div>
-  </div>
+  <!-- CALENDAR -->
+  <div class="content">
 
+    <div class="month">
+      <button onclick="prev()">←</button>
+      <h3 id="monthLabel"></h3>
+      <button onclick="next()">→</button>
+    </div>
+
+    <div id="calendar"></div>
+
+  </div>
 </div>
 
 <!-- MODAL -->
 <div class="modal" id="modal">
   <div class="modal-content">
     <h3>Tag bearbeiten</h3>
+
     <select id="daySelect"></select>
+
     <button class="btn primary" onclick="saveDay()">Speichern</button>
     <button class="btn secondary" onclick="closeModal()">Abbrechen</button>
   </div>
@@ -358,17 +251,14 @@ select, input{
 <script>
 
 let parkId;
-let resortId;
 let selectedDay = null;
 let days = {};
 let timeSlots = [];
 let date = new Date();
-let attractions = [];
 
 const DB_ID = "themepark-dp";
 const HOURS = "openinghours";
 const SLOTS = "timeslots";
-const ATTRACTIONS_ID = "attractions";
 
 /* INIT */
 async function init(){
@@ -376,98 +266,27 @@ async function init(){
 
   const params = new URLSearchParams(location.search);
   parkId = params.get("id");
-  resortId = params.get("resort");
 
-  if (!parkId) {
-    window.location.href = "resorts.html?id=" + resortId;
-    return;
-  }
-
-  await loadParkName();
   await loadSlots();
   await loadDays();
-  await loadAttractions();
 
   render();
 }
 
 init();
 
-/* LOAD PARK NAME */
-async function loadParkName() {
-  try {
-    const park = await databases.getDocument(
-      DATABASE_ID,
-      PARKS_ID,
-      parkId
-    );
-    document.getElementById("parkNameSidebar").textContent = park.name;
-  } catch(err) {
-    console.error(err);
-  }
-}
-
-/* LOAD ATTRACTIONS */
-async function loadAttractions() {
-  try {
-    const res = await databases.listDocuments(
-      DB_ID,
-      ATTRACTIONS_ID,
-      [Appwrite.Query.equal("parkId", parkId)]
-    );
-    attractions = res.documents;
-    renderWaittime();
-  } catch(err) {
-    console.error(err);
-  }
-}
-
-/* RENDER WAITTIME */
-function renderWaittime() {
-  let html = "";
-  if (attractions.length === 0) {
-    html = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--muted);">🎪 Noch keine Attraktionen hinzugefügt</div>';
-  } else {
-    attractions.forEach(attr => {
-      html += `
-        <div class="waittime-card">
-          <h3>${attr.name}</h3>
-          <p style="color: var(--muted); font-size: 13px; margin: 0;">Aktuelle Wartezeit</p>
-          <div class="waittime-input">
-            <input type="number" id="waittime-${attr.$id}" placeholder="Minuten" value="${attr.waittime || 0}" min="0">
-            <button onclick="updateWaittime('${attr.$id}')">Update</button>
-          </div>
-        </div>
-      `;
-    });
-  }
-  document.getElementById("waittimeContent").innerHTML = html;
-}
-
-/* UPDATE WAITTIME */
-async function updateWaittime(attractionId) {
-  const waittime = parseInt(document.getElementById(`waittime-${attractionId}`).value) || 0;
-  try {
-    await databases.updateDocument(
-      DB_ID,
-      ATTRACTIONS_ID,
-      attractionId,
-      { waittime }
-    );
-  } catch(err) {
-    console.error(err);
-  }
-}
-
 /* LOAD SLOTS */
 async function loadSlots(){
+
   try {
     const res = await databases.listDocuments(
       DB_ID,
       SLOTS,
       [Appwrite.Query.equal("parkId", parkId)]
     );
+
     timeSlots = res.documents.map(d => d.label);
+
   } catch(err){
     console.error(err);
   }
@@ -475,6 +294,7 @@ async function loadSlots(){
 
 /* ADD SLOT */
 async function addTimeSlot(){
+
   const from = document.getElementById("fromTime").value;
   const to = document.getElementById("toTime").value;
 
@@ -483,6 +303,7 @@ async function addTimeSlot(){
   const label = `${from} - ${to}`;
 
   try {
+
     await databases.createDocument(
       DB_ID,
       SLOTS,
@@ -496,8 +317,7 @@ async function addTimeSlot(){
     );
 
     timeSlots.push(label);
-    document.getElementById("fromTime").value = "";
-    document.getElementById("toTime").value = "";
+
   } catch(err){
     console.error(err);
   }
@@ -505,7 +325,9 @@ async function addTimeSlot(){
 
 /* LOAD DAYS */
 async function loadDays(){
+
   try {
+
     const res = await databases.listDocuments(
       DB_ID,
       HOURS,
@@ -525,6 +347,7 @@ async function loadDays(){
 
 /* RENDER CALENDAR */
 function render(){
+
   const y = date.getFullYear();
   const m = date.getMonth();
 
@@ -544,6 +367,7 @@ function render(){
   for(let i=0;i<start;i++) html += `<div></div>`;
 
   for(let i=1;i<=last.getDate();i++){
+
     const key = `${y}-${m+1}-${i}`;
     const d = days[key];
 
@@ -583,6 +407,7 @@ function next(){ date.setMonth(date.getMonth()+1); render(); }
 
 /* MODAL */
 function openDay(key){
+
   selectedDay = key;
 
   let options = `
@@ -595,6 +420,7 @@ function openDay(key){
   });
 
   document.getElementById("daySelect").innerHTML = options;
+
   document.getElementById("modal").style.display="flex";
 }
 
@@ -602,27 +428,9 @@ function closeModal(){
   document.getElementById("modal").style.display="none";
 }
 
-/* TAB SWITCHING */
-function switchTab(tab) {
-  // Hide all tabs
-  document.querySelectorAll(".tab-content").forEach(el => {
-    el.classList.remove("active");
-  });
-
-  // Remove active from all buttons
-  document.querySelectorAll(".nav button").forEach(btn => {
-    btn.classList.remove("active");
-  });
-
-  // Show selected tab
-  document.getElementById(tab).classList.add("active");
-
-  // Add active to clicked button
-  event.target.closest("button").classList.add("active");
-}
-
 /* SAVE */
 async function saveDay(){
+
   const val = document.getElementById("daySelect").value;
 
   let type="none";
@@ -635,6 +443,7 @@ async function saveDay(){
   }
 
   try {
+
     const existing = await databases.listDocuments(
       DB_ID,
       HOURS,
@@ -645,13 +454,16 @@ async function saveDay(){
     );
 
     if(existing.documents.length>0){
+
       await databases.updateDocument(
         DB_ID,
         HOURS,
         existing.documents[0].$id,
         {type,time}
       );
+
     } else {
+
       await databases.createDocument(
         DB_ID,
         HOURS,
@@ -669,17 +481,9 @@ async function saveDay(){
 
     closeModal();
     render();
+
   } catch(err){
     console.error(err);
-  }
-}
-
-/* GO BACK */
-function goBack() {
-  if (resortId) {
-    window.location.href = `resorts.html?id=${resortId}`;
-  } else {
-    window.location.href = "dashboard.html";
   }
 }
 
