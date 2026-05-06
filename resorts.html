@@ -356,10 +356,10 @@ h1 {
   </div>
 
   <div class="nav">
-    <button class="active" onclick="switchTab('parks')">
+    <button class="active" data-tab="parks" onclick="switchTab('parks')">
       <i data-lucide="map-pin"></i> Parks
     </button>
-    <button onclick="switchTab('more')">
+    <button data-tab="more" onclick="switchTab('more')">
       <i data-lucide="more-horizontal"></i> Mehr
     </button>
   </div>
@@ -546,7 +546,7 @@ function switchTab(tab) {
   document.getElementById(tab).classList.add("active");
 
   // Add active to clicked button
-  event.target.closest("button").classList.add("active");
+  document.querySelector(`[data-tab="${tab}"]`).classList.add("active");
 
   // Hide FAB for "Mehr" tab
   const fab = document.getElementById("fab");
